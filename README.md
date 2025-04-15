@@ -1,16 +1,57 @@
-# todo
+# 📝 To-Do App
 
-A new Flutter project.
+A simple yet powerful Flutter To-Do app that helps you manage daily tasks efficiently. Built using Flutter with Riverpod state management and local persistence via SQLite.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Features
 
-A few resources to get you started if this is your first Flutter project:
+- Add, edit, and delete tasks  
+- Mark tasks as completed  
+- Date and time selection for tasks  
+- Categorize tasks  
+- Beautiful UI using Material Design  
+- Local database with SQLite  
+- Riverpod for state management  
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+lib/
+├── data/             # Models and database/repositories
+├── provider/         # Riverpod state providers
+├── screens/          # App UI screens
+├── utils/            # Helper functions and extensions
+├── widgets/          # Reusable UI components
+
+---
+
+## Technologies Used
+
+Flutter
+
+Riverpod
+
+Sqflite
+
+Intl
+
+---
+
+## 🛠️ Getting Started
+
+To run this project on your local machine:
+
+### Prerequisites
+- Flutter installed
+- Android Studio or VS Code with Flutter plugin
+
+
+### Installation Steps
+
+```bash
+git clone https://github.com/your-username/To-doApp.git
+cd To-doApp
+flutter pub get
+flutter run
+
+
