@@ -42,4 +42,13 @@ class TaskRepositoryImpl implements TaskRepository {
     }
   }
 
+  @override
+  Future<List<Task>> getTasksForDate(DateTime date) async {
+    try {
+      return await _datasource.getTasksForDate(date);
+    } catch (e) {
+      throw '$e';
+    }
+  }
+
 }

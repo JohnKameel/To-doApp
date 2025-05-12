@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:todo/data/models/tasks.dart';
 import 'package:todo/data/repositories/task_repositories.dart';
 import 'package:todo/provider/task/task_state.dart';
@@ -46,5 +47,9 @@ class TaskNotifier extends StateNotifier<TaskState> {
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  Future<List<Task>> getTasksForDate(DateTime date) async {
+    return await _repository.getTasksForDate(date);
   }
 }

@@ -4,6 +4,6 @@ import 'package:flutter/material.dart';
 class RouterLocation {
   const RouterLocation._();
 
-  static String get home => '/home';
+  static String get home => '/';
   static String get createTask => '/createTask';
 }

@@ -1,7 +1,10 @@
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todo/data/models/tasks.dart';
 import 'package:todo/utils/db_keys.dart';
+
+import '../../utils/notification_services.dart';
 
 class TaskDatasource {
   static final TaskDatasource _instace = TaskDatasource._();
@@ -49,6 +52,18 @@ class TaskDatasource {
         task.toJson(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
+
+      // final DateTime taskDateTime = DateTime.parse('${task.date} ${task.time}:00');
+      //
+      // if (taskDateTime.isAfter(DateTime.now())) {
+      //   await NotificationService.scheduleTaskNotification(
+      //     id: id,
+      //     title: 'Task Reminder: ${task.title}',
+      //     body: 'Due on ${taskDateTime.toLocal().toString().split(" ")[0]}',
+      //     Date: taskDateTime,
+      //   );
+      // }
+      // return id;
     },
     );
   }
@@ -68,6 +83,7 @@ class TaskDatasource {
 
   Future<int> deleteTask(Task task) async{
     final db = await database;
+    // await NotificationService.cancelNotification(task.id!);
     return db.transaction((txn) async{
       return await txn.delete(
         DBKeys.dbTable,
@@ -89,4 +105,19 @@ class TaskDatasource {
           (index) => Task.fromJson(data[index]),
     );
   }
+
+  Future<List<Task>> getTasksForDate(DateTime date) async {
+    final db = await database;
+    final formattedDate = DateFormat.yMMMd().format(date); // Format the date to match your DB format
+
+    final List<Map<String, dynamic>> result = await db.query(
+      DBKeys.dbTable,
+      where: '${DBKeys.dateColumn} = ?', // Query tasks where date matches
+      whereArgs: [formattedDate], // Pass the formatted date
+    );
+
+    // Convert the query result to a list of Task objects
+    return result.map((json) => Task.fromJson(json)).toList();
+  }
+
 }

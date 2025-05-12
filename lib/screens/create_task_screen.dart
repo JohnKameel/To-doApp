@@ -15,6 +15,7 @@ import 'package:todo/widgets/display_while_text.dart';
 import 'package:todo/widgets/select_date_time.dart';
 import '../provider/category_provider.dart';
 import '../provider/time_provider.dart';
+import '../utils/notification_services.dart';
 import '../widgets/select_category.dart';
 
 class CreateTaskScreen extends ConsumerStatefulWidget {
@@ -28,6 +29,17 @@ class CreateTaskScreen extends ConsumerStatefulWidget {
 class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
+  final NotificationService _notificationService = NotificationService();
+  DateTime selectedDate = DateTime.now();
+
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _notificationService.initialize();
+  }
 
   @override
   void dispose() {
@@ -71,8 +83,8 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(colors.primary),
                 ),
-                  onPressed: _createTask,
-                  child: const DisplayWhileText(text: 'Save'),
+                onPressed: _createTask,
+                child: const DisplayWhileText(text: 'Save'),
               ),
             ],
           ),
@@ -81,6 +93,8 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
     );
   }
 
+
+
   void _createTask() async {
     final title = _titleController.text.trim();
     final note = _noteController.text.trim();
@@ -88,23 +102,60 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
     final time = ref.watch(timeProvider);
     final category = ref.watch(categoryProvider);
 
-    if (title.isNotEmpty) {
-      final task = Task(
-          title: title,
-          note: note,
-          time: Helpers.timeToString(time),
-          date: DateFormat.yMMMd().format(date),
-          category: category,
-          isCompleted: false
-      );
-
-      await ref.read(taskProvider.notifier).createTask(task).then((value) {
-        AppAlerts.displaySnackBar(context, 'Task created Successfully');
-        context.go(RouterLocation.home);
-      },
-      );
-    } else {
+    // Ensure title is not empty
+    if (title.isEmpty) {
       AppAlerts.displaySnackBar(context, 'Task title cannot be empty');
+      return;
     }
+
+    // Create the task object
+    final task = Task(
+      title: title,
+      note: note,
+      time: Helpers.timeToString(time),
+      date: DateFormat.yMMMd().format(date),
+      category: category,
+      isCompleted: false,
+    );
+
+    // Create the task in the database
+    await ref.read(taskProvider.notifier).createTask(task);
+
+    // Combine date and time into one DateTime object
+    final scheduledDateTime = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+
+    // Ensure the scheduled date is in the future
+    if (scheduledDateTime.isBefore(DateTime.now())) {
+      AppAlerts.displaySnackBar(context, 'Please select a future date and time');
+      return;
+    }
+
+    final tasksForDate = await ref.read(taskProvider.notifier).getTasksForDate(date);
+
+    // If there are tasks already scheduled for the selected date, schedule a daily morning reminder
+    if (tasksForDate.isNotEmpty) {
+      final taskTitles = tasksForDate.map((t) => '• ${t.title}').join('\n');
+      await _notificationService.scheduleDailyMorningTaskReminder(
+        body: 'You have ${tasksForDate.length} task(s) today:\n$taskTitles',
+      );
+    }
+
+
+    // Schedule the notification
+    await _notificationService.scheduleNotification(
+      scheduledDateTime,
+      title: 'Reminder: $title',
+      body: note.isNotEmpty ? note : 'You have a task scheduled.',
+    );
+
+    // Display success message and navigate back to home
+    AppAlerts.displaySnackBar(context, 'Task created and notification scheduled');
+    context.go(RouterLocation.home);
   }
 }
