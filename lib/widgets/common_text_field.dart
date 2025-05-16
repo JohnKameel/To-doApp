@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:todo/data/models/tasks.dart';
 import 'package:todo/utils/extensions.dart';
 
 class CommonTextField extends StatelessWidget {

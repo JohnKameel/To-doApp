@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:todo/data/models/tasks.dart';
 import 'package:todo/data/repositories/task_repositories.dart';
 import 'package:todo/provider/task/task_state.dart';
